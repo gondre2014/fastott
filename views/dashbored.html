@@ -56,7 +56,7 @@
 </head>
 <body class="text-[#f5f5f7] min-h-screen selection:bg-white selection:text-black p-6">
 
-    <!-- 관리자 인증 오버레이 -->
+    <!-- 관리자 인증 모달 -->
     <div id="loginOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 z-50">
         <div class="liquid-glass p-8 rounded-2xl max-w-sm w-full text-center space-y-4">
             <div class="w-8 h-8 rounded-lg bg-white/10 border border-white/20 text-white font-mono text-xs flex items-center justify-center mx-auto">
@@ -64,46 +64,102 @@
             </div>
             <div>
                 <h2 class="text-lg font-medium text-white tracking-tight">대시보드 인증</h2>
-                <p class="text-[11px] text-white/40 mt-1">접근 암호를 입력해 주세요</p>
+                <p class="text-[11px] text-white/40 mt-1">관리자 암호를 입력하세요</p>
             </div>
             <input type="password" id="adminPw" placeholder="암호 입력" class="apple-input w-full rounded-xl px-4 py-3 text-xs text-center text-white placeholder-white/20">
-            <button onclick="loadOrders()" class="apple-btn w-full font-semibold py-3 rounded-xl text-xs">
+            <button onclick="loadAdminData()" class="apple-btn w-full font-semibold py-3 rounded-xl text-xs">
                 대시보드 열기
             </button>
         </div>
     </div>
 
-    <!-- 대시보드 화면 -->
-    <div id="dashboardContent" class="max-w-6xl mx-auto hidden pt-6">
-        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/[0.06]">
+    <!-- 대시보드 메인 본문 -->
+    <div id="dashboardContent" class="max-w-6xl mx-auto hidden pt-4 space-y-8">
+        
+        <!-- 상단 헤더 & 탭 -->
+        <header class="flex justify-between items-center pb-4 border-b border-white/[0.06]">
             <div>
                 <span class="text-[10px] font-mono text-white/40 uppercase tracking-widest block">System Panel</span>
-                <h1 class="text-xl font-semibold text-white tracking-tight mt-1">주문 및 승인 관리</h1>
+                <h1 class="text-xl font-semibold text-white tracking-tight mt-1">통합 관리 시스템</h1>
             </div>
-            <button onclick="loadOrders()" class="apple-btn-outline text-xs px-3.5 py-2 rounded-xl">
-                새로고침
-            </button>
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('orders')" id="tabBtnOrders" class="apple-btn text-xs px-3.5 py-2 rounded-xl font-semibold">주문 승인</button>
+                <button onclick="switchTab('inventory')" id="tabBtnInventory" class="apple-btn-outline text-xs px-3.5 py-2 rounded-xl">재고 / 상품</button>
+                <button onclick="switchTab('settings')" id="tabBtnSettings" class="apple-btn-outline text-xs px-3.5 py-2 rounded-xl">설정 (암호변경)</button>
+            </div>
         </header>
 
-        <div class="liquid-glass rounded-2xl overflow-hidden">
-            <table class="w-full text-left border-collapse text-xs">
-                <thead>
-                    <tr class="border-b border-white/[0.06] text-white/40 font-mono uppercase bg-white/[0.02]">
-                        <th class="p-4 font-normal">시간</th>
-                        <th class="p-4 font-normal">주문자 / 이메일</th>
-                        <th class="p-4 font-normal">플랜</th>
-                        <th class="p-4 font-normal">금액</th>
-                        <th class="p-4 font-normal">확인증</th>
-                        <th class="p-4 font-normal">상태</th>
-                        <th class="p-4 font-normal text-right">관리</th>
-                    </tr>
-                </thead>
-                <tbody id="orderTableBody" class="divide-y divide-white/[0.04]"></tbody>
-            </table>
-        </div>
+        <!-- 1. 주문 승인 탭 -->
+        <section id="tabOrders" class="space-y-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-sm font-medium text-white/80">실시간 접수 주문</h2>
+                <button onclick="loadAdminData()" class="apple-btn-outline text-[11px] px-3 py-1.5 rounded-lg">새로고침</button>
+            </div>
+            <div class="liquid-glass rounded-2xl overflow-hidden">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-white/[0.06] text-white/40 font-mono uppercase bg-white/[0.02]">
+                            <th class="p-4 font-normal">시간</th>
+                            <th class="p-4 font-normal">구매자 / 이메일</th>
+                            <th class="p-4 font-normal">상품</th>
+                            <th class="p-4 font-normal">금액</th>
+                            <th class="p-4 font-normal">확인증</th>
+                            <th class="p-4 font-normal">상태</th>
+                            <th class="p-4 font-normal text-right">승인</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody" class="divide-y divide-white/[0.04]"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 2. 재고 / 상품 관리 탭 -->
+        <section id="tabInventory" class="hidden space-y-6">
+            <!-- 새 상품 등록 카드 -->
+            <div class="liquid-glass p-6 rounded-2xl space-y-4">
+                <h3 class="text-xs font-mono uppercase tracking-wider text-white/50">새 상품 추가</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <input type="text" id="newProdName" placeholder="상품명 (예: 디즈니플러스 1개월)" class="apple-input rounded-xl px-3.5 py-2.5 text-xs text-white">
+                    <input type="text" id="newProdPrice" placeholder="가격 (예: 4,000원)" class="apple-input rounded-xl px-3.5 py-2.5 text-xs text-white">
+                    <input type="number" id="newProdStock" placeholder="초기 재고 (숫자)" class="apple-input rounded-xl px-3.5 py-2.5 text-xs text-white">
+                    <button onclick="addProduct()" class="apple-btn font-semibold rounded-xl text-xs py-2.5">추가하기</button>
+                </div>
+            </div>
+
+            <!-- 등록된 상품 목록 및 재고 수정 -->
+            <div class="liquid-glass rounded-2xl overflow-hidden">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-white/[0.06] text-white/40 font-mono uppercase bg-white/[0.02]">
+                            <th class="p-4 font-normal">ID</th>
+                            <th class="p-4 font-normal">상품명</th>
+                            <th class="p-4 font-normal">판매가</th>
+                            <th class="p-4 font-normal">현재 재고수량</th>
+                            <th class="p-4 font-normal text-right">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody" class="divide-y divide-white/[0.04]"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- 3. 설정 (비밀번호 변경) 탭 -->
+        <section id="tabSettings" class="hidden max-w-md mx-auto space-y-4">
+            <div class="liquid-glass p-7 rounded-2xl space-y-4">
+                <h3 class="text-sm font-semibold text-white">관리자 비밀번호 변경</h3>
+                <div>
+                    <label class="block text-[11px] text-white/50 mb-1.5 font-medium">새 비밀번호 입력</label>
+                    <input type="password" id="newAdminPw" placeholder="새 비밀번호 입력" class="apple-input w-full rounded-xl px-3.5 py-2.5 text-xs text-white">
+                </div>
+                <button onclick="changePassword()" class="apple-btn w-full font-semibold py-3 rounded-xl text-xs">
+                    비밀번호 변경 적용
+                </button>
+            </div>
+        </section>
+
     </div>
 
-    <!-- 캡처 모달 -->
+    <!-- 이미지 확인 모달 -->
     <div id="imageModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 p-4" onclick="closeModal()">
         <div class="liquid-glass p-5 rounded-2xl max-w-lg w-full" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-3">
@@ -117,11 +173,21 @@
     <script>
         let currentPassword = '';
 
-        async function loadOrders() {
+        function switchTab(tab) {
+            document.getElementById('tabOrders').classList.toggle('hidden', tab !== 'orders');
+            document.getElementById('tabInventory').classList.toggle('hidden', tab !== 'inventory');
+            document.getElementById('tabSettings').classList.toggle('hidden', tab !== 'settings');
+
+            document.getElementById('tabBtnOrders').className = tab === 'orders' ? 'apple-btn text-xs px-3.5 py-2 rounded-xl font-semibold' : 'apple-btn-outline text-xs px-3.5 py-2 rounded-xl';
+            document.getElementById('tabBtnInventory').className = tab === 'inventory' ? 'apple-btn text-xs px-3.5 py-2 rounded-xl font-semibold' : 'apple-btn-outline text-xs px-3.5 py-2 rounded-xl';
+            document.getElementById('tabBtnSettings').className = tab === 'settings' ? 'apple-btn text-xs px-3.5 py-2 rounded-xl font-semibold' : 'apple-btn-outline text-xs px-3.5 py-2 rounded-xl';
+        }
+
+        async function loadAdminData() {
             const pwInput = document.getElementById('adminPw').value;
             if (pwInput) currentPassword = pwInput;
 
-            const res = await fetch('/api/admin/orders', {
+            const res = await fetch('/api/admin/data', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ password: currentPassword })
@@ -136,45 +202,116 @@
             document.getElementById('loginOverlay').classList.add('hidden');
             document.getElementById('dashboardContent').classList.remove('hidden');
 
-            const tbody = document.getElementById('orderTableBody');
-            if (!data.orders || data.orders.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="p-10 text-center text-white/30 text-xs">접수된 주문이 없습니다.</td></tr>';
-                return;
-            }
-
-            tbody.innerHTML = data.orders.map(o => {
-                const dateText = o.created_at ? new Date(o.created_at).toLocaleString('ko-KR') : '-';
-                const isApproved = o.status === '승인완료';
-                return `
+            // 1. 주문 목록 렌더링
+            const orderTbody = document.getElementById('orderTableBody');
+            orderTbody.innerHTML = (!data.orders || data.orders.length === 0) 
+                ? '<tr><td colspan="7" class="p-8 text-center text-white/30 text-xs">접수된 주문이 없습니다.</td></tr>'
+                : data.orders.map(o => `
                     <tr class="hover:bg-white/[0.02] transition">
-                        <td class="p-4 font-mono text-white/40">${dateText}</td>
+                        <td class="p-4 font-mono text-white/40">${o.created_at ? new Date(o.created_at).toLocaleString('ko-KR') : '-'}</td>
                         <td class="p-4 text-white font-medium">${o.buyer_name}<span class="block text-white/40 font-mono text-[11px] mt-0.5">${o.buyer_email}</span></td>
                         <td class="p-4 text-white">${o.product_name}</td>
                         <td class="p-4 font-mono text-white/80">${o.price}</td>
                         <td class="p-4">
-                            ${o.receipt_image ? `<button onclick="openModal('${o.receipt_image}')" class="apple-btn-outline px-2.5 py-1 rounded-lg text-[11px]">확인</button>` : '<span class="text-white/20">-</span>'}
+                            ${o.receipt_image ? `<button onclick="openModal('${o.receipt_image}')" class="apple-btn-outline px-2.5 py-1 rounded-lg text-[11px]">확인</button>` : '-'}
                         </td>
                         <td class="p-4">
-                            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono tracking-tight ${isApproved ? 'bg-white/10 text-white' : 'bg-white/[0.04] text-white/50 border border-white/10'}">${o.status}</span>
+                            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono ${o.status === '승인완료' ? 'bg-white/10 text-white' : 'bg-white/[0.04] text-white/50 border border-white/10'}">${o.status}</span>
                         </td>
                         <td class="p-4 text-right">
-                            ${!isApproved 
-                                ? `<button onclick="approveOrder('${o.id}')" class="apple-btn px-3 py-1.5 rounded-lg text-[11px] font-semibold">승인</button>` 
-                                : '<span class="text-white/30 text-[11px]">완료됨</span>'}
+                            ${o.status !== '승인완료' ? `<button onclick="approveOrder('${o.id}')" class="apple-btn px-3 py-1.5 rounded-lg text-[11px] font-semibold">승인</button>` : '<span class="text-white/30 text-[11px]">완료</span>'}
                         </td>
                     </tr>
-                `;
-            }).join('');
+                `).join('');
+
+            // 2. 상품 및 재고 목록 렌더링
+            const prodTbody = document.getElementById('productTableBody');
+            prodTbody.innerHTML = (!data.products || data.products.length === 0)
+                ? '<tr><td colspan="5" class="p-8 text-center text-white/30 text-xs">등록된 상품이 없습니다.</td></tr>'
+                : data.products.map(p => `
+                    <tr class="hover:bg-white/[0.02] transition">
+                        <td class="p-4 font-mono text-white/40">${p.id}</td>
+                        <td class="p-4 text-white font-medium">${p.name}</td>
+                        <td class="p-4 font-mono text-white/80">${p.price}</td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-2">
+                                <input type="number" id="stock_${p.id}" value="${p.stock}" class="apple-input w-20 px-2 py-1 rounded-lg text-center text-xs font-mono text-white">
+                                <button onclick="updateStock(${p.id})" class="apple-btn-outline px-2.5 py-1 rounded-lg text-[11px]">수정</button>
+                            </div>
+                        </td>
+                        <td class="p-4 text-right">
+                            <button onclick="deleteProduct(${p.id})" class="text-white/30 hover:text-red-400 text-xs transition">삭제</button>
+                        </td>
+                    </tr>
+                `).join('');
         }
 
         async function approveOrder(orderId) {
-            if (!confirm('해당 주문을 승인 처리하시겠습니까?')) return;
+            if (!confirm('승인 처리하시겠습니까?')) return;
             await fetch('/api/admin/approve', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ password: currentPassword, orderId })
             });
-            loadOrders();
+            loadAdminData();
+        }
+
+        async function updateStock(productId) {
+            const stock = document.getElementById(`stock_${productId}`).value;
+            await fetch('/api/admin/update-stock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: currentPassword, productId, stock: parseInt(stock) })
+            });
+            alert('재고가 수정되었습니다.');
+            loadAdminData();
+        }
+
+        async function addProduct() {
+            const name = document.getElementById('newProdName').value;
+            const price = document.getElementById('newProdPrice').value;
+            const stock = parseInt(document.getElementById('newProdStock').value) || 0;
+            if (!name || !price) return alert('상품명과 가격을 입력하세요.');
+
+            await fetch('/api/admin/add-product', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: currentPassword, name, price, stock })
+            });
+            alert('상품이 추가되었습니다.');
+            document.getElementById('newProdName').value = '';
+            document.getElementById('newProdPrice').value = '';
+            document.getElementById('newProdStock').value = '';
+            loadAdminData();
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('정말 이 상품을 삭제하시겠습니까?')) return;
+            await fetch('/api/admin/delete-product', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: currentPassword, productId })
+            });
+            loadAdminData();
+        }
+
+        async function changePassword() {
+            const newPassword = document.getElementById('newAdminPw').value;
+            if (!newPassword || newPassword.length < 4) return alert('4자 이상 입력해 주세요.');
+
+            const res = await fetch('/api/admin/change-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ currentPassword, newPassword })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message);
+                currentPassword = newPassword;
+                document.getElementById('newAdminPw').value = '';
+            } else {
+                alert(data.message);
+            }
         }
 
         function openModal(src) {
