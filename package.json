@@ -1,0 +1,17 @@
+{
+  "name": "fastott-service",
+  "version": "1.0.0",
+  "description": "FastOTT Digital Store Infrastructure",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "form-data": "^4.0.0",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.11.5"
+  }
+}

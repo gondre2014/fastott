@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리 대시보드 - FastOTT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        * {
+            font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            letter-spacing: -0.02em;
+        }
+        body {
+            background-color: #000000;
+            background-image: radial-gradient(circle at 50% 0%, rgba(120, 120, 120, 0.12), transparent 70%);
+        }
+        .liquid-glass {
+            background: rgba(22, 22, 24, 0.65);
+            backdrop-filter: blur(40px) saturate(190%);
+            -webkit-backdrop-filter: blur(40px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+                inset 0 0 16px 0 rgba(255, 255, 255, 0.02),
+                0 20px 40px -15px rgba(0, 0, 0, 0.7);
+        }
+        .apple-input {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .apple-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.07);
+        }
+        .apple-btn {
+            background: #ffffff;
+            color: #000000;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .apple-btn:hover { background: #e5e5ea; transform: scale(0.99); }
+        .apple-btn-outline {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            transition: all 0.2s ease;
+        }
+        .apple-btn-outline:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="text-[#f5f5f7] min-h-screen selection:bg-white selection:text-black p-6">
+
+    <!-- 관리자 인증 오버레이 -->
+    <div id="loginOverlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 z-50">
+        <div class="liquid-glass p-8 rounded-2xl max-w-sm w-full text-center space-y-4">
+            <div class="w-8 h-8 rounded-lg bg-white/10 border border-white/20 text-white font-mono text-xs flex items-center justify-center mx-auto">
+                ADMIN
+            </div>
+            <div>
+                <h2 class="text-lg font-medium text-white tracking-tight">대시보드 인증</h2>
+                <p class="text-[11px] text-white/40 mt-1">접근 암호를 입력해 주세요</p>
+            </div>
+            <input type="password" id="adminPw" placeholder="암호 입력" class="apple-input w-full rounded-xl px-4 py-3 text-xs text-center text-white placeholder-white/20">
+            <button onclick="loadOrders()" class="apple-btn w-full font-semibold py-3 rounded-xl text-xs">
+                대시보드 열기
+            </button>
+        </div>
+    </div>
+
+    <!-- 대시보드 화면 -->
+    <div id="dashboardContent" class="max-w-6xl mx-auto hidden pt-6">
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-white/[0.06]">
+            <div>
+                <span class="text-[10px] font-mono text-white/40 uppercase tracking-widest block">System Panel</span>
+                <h1 class="text-xl font-semibold text-white tracking-tight mt-1">주문 및 승인 관리</h1>
+            </div>
+            <button onclick="loadOrders()" class="apple-btn-outline text-xs px-3.5 py-2 rounded-xl">
+                새로고침
+            </button>
+        </header>
+
+        <div class="liquid-glass rounded-2xl overflow-hidden">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="border-b border-white/[0.06] text-white/40 font-mono uppercase bg-white/[0.02]">
+                        <th class="p-4 font-normal">시간</th>
+                        <th class="p-4 font-normal">주문자 / 이메일</th>
+                        <th class="p-4 font-normal">플랜</th>
+                        <th class="p-4 font-normal">금액</th>
+                        <th class="p-4 font-normal">확인증</th>
+                        <th class="p-4 font-normal">상태</th>
+                        <th class="p-4 font-normal text-right">관리</th>
+                    </tr>
+                </thead>
+                <tbody id="orderTableBody" class="divide-y divide-white/[0.04]"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 캡처 모달 -->
+    <div id="imageModal" class="hidden fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-50 p-4" onclick="closeModal()">
+        <div class="liquid-glass p-5 rounded-2xl max-w-lg w-full" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-xs font-mono text-white/50 uppercase">Receipt Image</span>
+                <button onclick="closeModal()" class="text-white/40 hover:text-white text-xs">닫기</button>
+            </div>
+            <img id="modalImage" src="" alt="영수증" class="w-full rounded-xl max-h-[70vh] object-contain bg-black border border-white/[0.06]">
+        </div>
+    </div>
+
+    <script>
+        let currentPassword = '';
+
+        async function loadOrders() {
+            const pwInput = document.getElementById('adminPw').value;
+            if (pwInput) currentPassword = pwInput;
+
+            const res = await fetch('/api/admin/orders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: currentPassword })
+            });
+            const data = await res.json();
+
+            if (!data.success) {
+                alert('인증에 실패했습니다.');
+                return;
+            }
+
+            document.getElementById('loginOverlay').classList.add('hidden');
+            document.getElementById('dashboardContent').classList.remove('hidden');
+
+            const tbody = document.getElementById('orderTableBody');
+            if (!data.orders || data.orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-10 text-center text-white/30 text-xs">접수된 주문이 없습니다.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.orders.map(o => {
+                const dateText = o.created_at ? new Date(o.created_at).toLocaleString('ko-KR') : '-';
+                const isApproved = o.status === '승인완료';
+                return `
+                    <tr class="hover:bg-white/[0.02] transition">
+                        <td class="p-4 font-mono text-white/40">${dateText}</td>
+                        <td class="p-4 text-white font-medium">${o.buyer_name}<span class="block text-white/40 font-mono text-[11px] mt-0.5">${o.buyer_email}</span></td>
+                        <td class="p-4 text-white">${o.product_name}</td>
+                        <td class="p-4 font-mono text-white/80">${o.price}</td>
+                        <td class="p-4">
+                            ${o.receipt_image ? `<button onclick="openModal('${o.receipt_image}')" class="apple-btn-outline px-2.5 py-1 rounded-lg text-[11px]">확인</button>` : '<span class="text-white/20">-</span>'}
+                        </td>
+                        <td class="p-4">
+                            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-mono tracking-tight ${isApproved ? 'bg-white/10 text-white' : 'bg-white/[0.04] text-white/50 border border-white/10'}">${o.status}</span>
+                        </td>
+                        <td class="p-4 text-right">
+                            ${!isApproved 
+                                ? `<button onclick="approveOrder('${o.id}')" class="apple-btn px-3 py-1.5 rounded-lg text-[11px] font-semibold">승인</button>` 
+                                : '<span class="text-white/30 text-[11px]">완료됨</span>'}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function approveOrder(orderId) {
+            if (!confirm('해당 주문을 승인 처리하시겠습니까?')) return;
+            await fetch('/api/admin/approve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: currentPassword, orderId })
+            });
+            loadOrders();
+        }
+
+        function openModal(src) {
+            document.getElementById('modalImage').src = src;
+            document.getElementById('imageModal').classList.remove('hidden');
+        }
+        function closeModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

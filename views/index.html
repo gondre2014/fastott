@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastOTT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        * {
+            font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            letter-spacing: -0.02em;
+        }
+        body {
+            background-color: #000000;
+            background-image: 
+                radial-gradient(circle at 50% -10%, rgba(120, 120, 120, 0.15), transparent 70%),
+                radial-gradient(circle at 50% 100%, rgba(60, 60, 60, 0.1), transparent 60%);
+        }
+        .liquid-glass {
+            background: rgba(22, 22, 24, 0.65);
+            backdrop-filter: blur(40px) saturate(190%);
+            -webkit-backdrop-filter: blur(40px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.12),
+                inset 0 0 16px 0 rgba(255, 255, 255, 0.02),
+                0 20px 40px -15px rgba(0, 0, 0, 0.7);
+        }
+        .apple-btn {
+            background: #ffffff;
+            color: #000000;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .apple-btn:hover { background: #e5e5ea; transform: scale(0.99); }
+        .apple-btn-sub {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            transition: all 0.2s ease;
+        }
+        .apple-btn-sub:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="text-[#f5f5f7] min-h-screen selection:bg-white selection:text-black flex flex-col justify-between">
+
+    <!-- 상단 헤더 -->
+    <header class="border-b border-white/[0.06] sticky top-0 z-50 bg-black/40 backdrop-blur-2xl">
+        <div class="max-w-5xl mx-auto px-6 h-14 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-2.5">
+                <div class="w-6 h-6 rounded-md bg-white text-black font-semibold text-xs flex items-center justify-center tracking-tighter">F</div>
+                <span class="font-medium text-sm tracking-tight text-white/90">FastOTT</span>
+            </a>
+            <div class="flex items-center gap-5">
+                <a href="/login" class="text-xs text-white/50 hover:text-white transition">로그인</a>
+                <a href="/buy" class="apple-btn px-3 py-1.5 rounded-lg text-xs font-semibold">스토어 이동</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 히어로 섹션 -->
+    <main class="max-w-4xl mx-auto px-6 py-28 text-center">
+        <span class="inline-block text-[11px] font-mono text-white/40 uppercase tracking-widest mb-4 px-3 py-1 rounded-full border border-white/[0.08] bg-white/[0.02]">
+            Digital Subscription Infrastructure
+        </span>
+        <h1 class="text-4xl sm:text-6xl font-semibold tracking-tight text-white mb-6 leading-tight">
+            가장 직관적인<br>프리미엄 구독 스토어.
+        </h1>
+        <p class="text-sm sm:text-base text-white/50 max-w-lg mx-auto font-normal leading-relaxed mb-10">
+            복잡한 절차 없이 원하는 구독 서비스를 선택하고 검증 즉시 발송되는 안전한 디지털 라이프를 경험해 보세요.
+        </p>
+
+        <div class="flex items-center justify-center gap-3">
+            <a href="/buy" class="apple-btn px-6 py-3 rounded-xl text-xs font-semibold">
+                플랜 둘러보기
+            </a>
+            <a href="/login" class="apple-btn-sub px-6 py-3 rounded-xl text-xs font-medium">
+                계정 로그인
+            </a>
+        </div>
+
+        <!-- 3개 핵심 특징 카드 -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-20 text-left">
+            <div class="liquid-glass p-6 rounded-2xl">
+                <span class="text-xs font-mono text-white/40 block mb-2">01 / Instant</span>
+                <h3 class="text-sm font-medium text-white mb-1">신속한 발급</h3>
+                <p class="text-xs text-white/40 leading-relaxed">이체 확인증 승인 즉시 메일함으로 계정 정보가 정확하게 발송됩니다.</p>
+            </div>
+            <div class="liquid-glass p-6 rounded-2xl">
+                <span class="text-xs font-mono text-white/40 block mb-2">02 / Guarantee</span>
+                <h3 class="text-sm font-medium text-white mb-1">30일 전액 보증</h3>
+                <p class="text-xs text-white/40 leading-relaxed">이용 기간 중 문제 발생 시 24시간 이내 신규 계정으로 교체 보증합니다.</p>
+            </div>
+            <div class="liquid-glass p-6 rounded-2xl">
+                <span class="text-xs font-mono text-white/40 block mb-2">03 / Privacy</span>
+                <h3 class="text-sm font-medium text-white mb-1">철저한 보안</h3>
+                <p class="text-xs text-white/40 leading-relaxed">개인정보를 불필요하게 요구하지 않으며 안전하게 격리되어 관리됩니다.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- 하단 푸터 -->
+    <footer class="border-t border-white/[0.06] py-8 text-center text-xs text-white/30 font-mono">
+        &copy; 2026 FastOTT. All rights reserved.
+    </footer>
+
+</body>
+</html>
